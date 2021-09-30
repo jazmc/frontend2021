@@ -1,0 +1,79 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>React getting started</title>
+</head>
+
+<body>
+    <!-- Root container for react components -->
+    <div id='root'></div>
+    <div id='msg'></div>
+
+    <p>En vaan saa tätä pelittämään. Ei voi mitään. En saa yhtään kiinni että missä funktiossa mikäkin asia pitää tehdä
+        ja miten saan ne päivitetyt tiedot statesta takaisin sinne propsiin.</p>
+
+    <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/6.26.0/babel.min.js"></script>
+
+    <script type="text/babel">
+        function GetWeather() {
+            const [city, setCity] = React.useState({ name: "", temp: "", weather: "", icon: "" });
+
+
+            const inputChanged = (event) => {
+                setCity({ ...city, [event.target.name]: event.target.value });
+            }
+
+            const submitForm = (event) => {
+                event.preventDefault();
+                ReactDOM.render(<FetchNew city={city} />, document.getElementById('msg'));
+            }
+
+
+            //React.useEffect(() => {fetchNew()},[])
+
+
+            return (
+                <div>
+                    <form onSubmit={submitForm}>
+                        <p>Name: <input type="text" name="name" value={city.name} onChange={inputChanged} /></p>
+                        <input type="submit" value="send" />
+                    </form>
+                </div>
+            );
+
+            function FetchNew(props) {
+
+                fetch('https://api.openweathermap.org/data/2.5/weather?q=' + props.city.name + '&appid=7a79570bd15ff4677d05f12d85f3b7ac&units=metric').then(
+                    response => response.json()
+                ).then(
+                    data => {
+                        setCity({ ...city, weather: data.weather[0].main, temp: data.main.temp, icon: "http://openweathermap.org/img/wn/" + data.weather[0].icon + ".png" });
+                    }
+                ).catch(err => { console.error(err) });
+
+                console.log(props);
+                console.log(city);
+
+                return (
+                    <div>
+                        <h2>Weather in {props.city.name}</h2>
+                        <p>Weather: {props.city.weather}</p>
+                        <p>Temperature: {props.city.temp}</p>
+                        <img src={props.city.icon} />
+                    </div>
+                );
+            }
+        }
+
+
+
+
+        ReactDOM.render(<GetWeather />, document.getElementById("root"));
+    </script>
+</body>
+
+</html>
